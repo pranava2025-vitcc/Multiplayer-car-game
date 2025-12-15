@@ -72,7 +72,7 @@ pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 32)
-instruction_text = font.render("Use Arrow Keys to Move", True, (255, 255, 255))
+
 
 
 client = Client()
@@ -109,7 +109,7 @@ while running:
     status_surface = font.render(client.status, True, (255, 255, 0))
     screen.blit(status_surface, (15, 50))
 
-    screen.blit(instruction_text, (15, 15))
+
 
     pygame.display.flip()
     clock.tick(60)
