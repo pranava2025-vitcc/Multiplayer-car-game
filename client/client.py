@@ -7,7 +7,7 @@ import time
 DISCOVERY_PORT = 50001
 TCP_PORT = 50000
 
-# Discover rooms
+
 def discover_rooms(timeout=1.5):
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -32,10 +32,13 @@ class Client:
         self.sock = None
         self.players = []
         self.running = True
+        self.status = "Searching for rooms..."
 
     def connect(self, host):
+        self.status = "Connecting..."
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((host, TCP_PORT))
+        self.status = "Connected!"
         threading.Thread(target=self.recv_loop, daemon=True).start()
 
     def recv_loop(self):
@@ -63,19 +66,25 @@ class Client:
         except:
             pass
 
+
 # ---------------------- PYGAME LOOP ----------------------
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 32)
+instruction_text = font.render("Use Arrow Keys to Move", True, (255, 255, 255))
+
 
 client = Client()
+print("Searching for rooms...")
 
 rooms = discover_rooms()
 if rooms:
     print("Found rooms:", rooms)
-    client.connect(rooms[0]["host"])   # auto-join first found
+    client.connect(rooms[0]["host"])   
 else:
     print("No rooms found.")
+    client.status = "No rooms found."
 
 running = True
 while running:
@@ -92,13 +101,21 @@ while running:
 
     client.send_input(dx, dy)
 
-    # draw
+    
     screen.fill((30, 30, 30))
     for p in client.players:
         pygame.draw.rect(screen, (0,255,0), (p["x"], p["y"], 40, 40))
+    
+    status_surface = font.render(client.status, True, (255, 255, 0))
+    screen.blit(status_surface, (15, 50))
+
+    screen.blit(instruction_text, (15, 15))
 
     pygame.display.flip()
     clock.tick(60)
 
 pygame.quit()
 client.running = False
+
+    
+
