@@ -56,7 +56,7 @@ class Client:
                     msg = json.loads(line.decode())
                     if msg["type"] == "welcome":
                         self.id = msg["id"]
-                        if "room_code" in msg:              # <<< ROOM CODE
+                        if "room_code" in msg:             
                             self.room_code = msg["room_code"]
                     elif msg["type"] == "state":
                         self.players = msg["players"]
@@ -75,15 +75,26 @@ class Client:
 pygame.init()
 screen = pygame.display.set_mode((1000, 700))
 clock = pygame.time.Clock()
+bg_surface = pygame.Surface((1000, 700))
+
+top_color = (20, 20, 20)      
+bottom_color = (60, 60, 60)   
+
+for y in range(700):
+    blend = y / 700
+    r = int(top_color[0] * (1 - blend) + bottom_color[0] * blend)
+    g = int(top_color[1] * (1 - blend) + bottom_color[1] * blend)
+    b = int(top_color[2] * (1 - blend) + bottom_color[2] * blend)
+    pygame.draw.line(bg_surface, (r, g, b), (0, y), (1000, y))
 font = pygame.font.SysFont(None, 32)
 instruction_text = font.render("Use Arrow Keys to Move", True, (255, 255, 255))
 
 client = Client()
-print("Searching for rooms.../n")
+print("Searching for rooms...\n")
 
 rooms = discover_rooms()
 if rooms:
-    print("Found rooms:/n", rooms)
+    print("Found rooms:\n", rooms)
     if "room_code" in rooms[0]:                      
         client.room_code = rooms[0]["room_code"] 
     client.connect(rooms[0]["host"])
@@ -106,7 +117,8 @@ while running:
 
     client.send_input(dx, dy)
 
-    screen.fill((30, 30, 30))
+    screen.fill((80, 0, 0))
+
     for p in client.players:
         pygame.draw.rect(screen, (0,255,0), (p["x"], p["y"], 40, 40))
 
